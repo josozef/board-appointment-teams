@@ -1,0 +1,41 @@
+---
+description: Authoritative product, data, workflow, and business-rule context for the Director Appointment workflow this project implements.
+alwaysApply: true
+---
+
+# Director Appointment — System Context
+
+This project implements the **Director Appointment** workflow for a Corporate
+Secretary persona (CoSec at Acme, Inc.), end-to-end across UI, chat, and
+deterministic backend channels. Before designing components, data shapes,
+state, or business logic, consult the canonical specs in `docs/`.
+
+## Reference Documents (read on demand)
+
+- `docs/01-product-and-persona.md` — what the workflow does, who it serves,
+  channel-agnostic operating principles, success criteria.
+- `docs/02-mock-data.md` — canonical reference data: parent org, subsidiary
+  entities, directors, HR candidate pool, regulator/jurisdiction fixtures,
+  field shapes to preserve when swapping for live integrations.
+- `docs/03-user-journey.md` — the six logical workflow steps (trigger →
+  identify → collect → configure → approve → file/close), with explicit
+  agent / human / system responsibilities and inputs/outputs per step.
+- `docs/04-workflow-engine.md` — runtime model: `AppointmentWorkflow` state
+  shape, state machine, autonomous-segment orchestration, integrations
+  (HRIS, entity register, regulator e-filing), timing.
+- `docs/05-business-rules.md` — invariants and edge cases: jurisdiction
+  rules (SG/ACRA, US-DE, IE, NL), eligibility, validation, approval
+  routing, filing requirements. These are MUST-enforce rules.
+
+## How to Use
+
+- Treat these documents as the source of truth for domain modeling,
+  terminology, state shapes, and business rules. Match field names
+  (e.g. `AppointmentWorkflow`, `EntityRef`, `Trigger`) exactly.
+- The implementation is **channel-agnostic**: the same state and rules back
+  the UI, chat, and backend. Don't bake channel-specific assumptions into
+  shared modules.
+- When a question touches jurisdiction, eligibility, consent forms, or
+  filing, defer to `05-business-rules.md` — those rules are normative.
+- If specs and code disagree, surface the conflict rather than silently
+  diverging from the docs.
