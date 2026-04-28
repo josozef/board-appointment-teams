@@ -13,22 +13,12 @@ import {
 } from '@fluentui/react-icons'
 import { AdaptiveCard, type CardStatus } from './AdaptiveCard'
 import { Avatar } from '../Avatar'
+import { FileChip } from '../FileChip'
 import { useWorkflow } from '../../workflow/WorkflowContext'
-import { ROBERT_JOHNSON } from '../../workflow/fixtures'
+import { selectDocuments } from '../../workflow/documents'
 
 const useStyles = makeStyles({
   body: { display: 'flex', flexDirection: 'column', gap: '14px' },
-  resolutionPreview: {
-    border: `1px solid ${tokens.colorNeutralStroke2}`,
-    borderRadius: '6px',
-    padding: '12px 14px',
-    backgroundColor: '#FAF9F8',
-    fontSize: '13px',
-    lineHeight: '20px',
-    color: tokens.colorNeutralForeground1,
-    fontFamily: 'Georgia, "Cambria", serif',
-    whiteSpace: 'pre-wrap',
-  },
   voteList: { display: 'flex', flexDirection: 'column', gap: '6px' },
   voteRow: {
     display: 'flex',
@@ -85,8 +75,11 @@ interface VoteCardProps {
 export function VoteCard({ audience }: VoteCardProps) {
   const styles = useStyles()
   const { workflow, castVote } = useWorkflow()
-  const robertVote = workflow.agentic.votes.find((v) => v.id === ROBERT_JOHNSON.id)
-  const robertVoted = robertVote?.status === 'approved'
+  const resolutionDoc = selectDocuments(workflow).find(
+    (d) => d.id === 'doc-board-resolution',
+  )
+  const leadVote = workflow.agentic.votes[0]
+  const leadVoted = leadVote?.status === 'approved'
   const approvedCount = workflow.agentic.votes.filter(
     (v) => v.status === 'approved',
   ).length
@@ -96,7 +89,7 @@ export function VoteCard({ audience }: VoteCardProps) {
   let status: CardStatus = 'awaiting'
   let statusLabel = audience === 'robert' ? 'Action needed' : 'Awaiting votes'
   if (audience === 'robert') {
-    if (robertVoted) {
+    if (leadVoted) {
       status = 'resolved'
       statusLabel = 'Vote recorded'
     }
@@ -119,9 +112,7 @@ export function VoteCard({ audience }: VoteCardProps) {
       statusLabel={statusLabel}
       body={
         <div className={styles.body}>
-          <div className={styles.resolutionPreview}>
-            {workflow.boardResolution.content}
-          </div>
+          {resolutionDoc && <FileChip doc={resolutionDoc} />}
           {audience === 'sarah' && (
             <>
               <div className={styles.tally}>
@@ -173,10 +164,10 @@ export function VoteCard({ audience }: VoteCardProps) {
                             <CheckmarkCircle20Filled />
                             Approved {v.time && `· ${v.time}`}
                           </>
-                        ) : v.id === ROBERT_JOHNSON.id ? (
+                        ) : v.id === leadVote?.id ? (
                           <>
                             <CircleHalfFill20Regular />
-                            Awaiting Robert
+                            Awaiting lead approver
                           </>
                         ) : (
                           <>
@@ -195,20 +186,24 @@ export function VoteCard({ audience }: VoteCardProps) {
       }
       footer={
         audience === 'robert' ? (
-          robertVoted ? (
+          leadVoted ? (
             <Button appearance="subtle" disabled>
-              You approved at {robertVote?.time}
+              You approved at {leadVote?.time}
             </Button>
-          ) : (
+          ) : leadVote ? (
             <>
               <Button appearance="subtle">Request changes</Button>
               <Button
                 appearance="primary"
-                onClick={() => castVote(ROBERT_JOHNSON.id, 'approved')}
+                onClick={() => castVote(leadVote.id, 'approved')}
               >
                 Approve resolution
               </Button>
             </>
+          ) : (
+            <Button appearance="subtle" disabled>
+              No approvers selected
+            </Button>
           )
         ) : null
       }

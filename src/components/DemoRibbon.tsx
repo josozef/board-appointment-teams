@@ -1,4 +1,5 @@
 import { makeStyles, mergeClasses, tokens, Badge } from '@fluentui/react-components'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar } from './Avatar'
 import { PERSONAS } from '../personas/personas'
 import { useWorkflow } from '../workflow/WorkflowContext'
@@ -58,6 +59,12 @@ const useStyles = makeStyles({
       backgroundColor: '#ffffff',
     },
   },
+  pillFlash: {
+    border: '1px solid #ffffff',
+    backgroundColor: '#ffffff',
+    color: '#1F1F2E',
+    boxShadow: '0 0 0 3px rgba(255,255,255,0.35), 0 0 20px rgba(255,255,255,0.7)',
+  },
   pillContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -81,6 +88,30 @@ const useStyles = makeStyles({
 export function DemoRibbon() {
   const styles = useStyles()
   const { perspective, setPerspective } = useWorkflow()
+  const [flashPersona, setFlashPersona] = useState<string | null>(null)
+  const [flashOn, setFlashOn] = useState(false)
+  const previousPerspective = useRef(perspective)
+
+  useEffect(() => {
+    if (previousPerspective.current === perspective) return
+    previousPerspective.current = perspective
+
+    setFlashPersona(perspective)
+    setFlashOn(true)
+    let ticks = 0
+    const interval = window.setInterval(() => {
+      ticks += 1
+      setFlashOn((v) => !v)
+      if (ticks >= 5) {
+        window.clearInterval(interval)
+        setFlashOn(false)
+        setFlashPersona(null)
+      }
+    }, 110)
+
+    return () => window.clearInterval(interval)
+  }, [perspective])
+
   return (
     <div className={styles.root} role="toolbar" aria-label="Demo perspective">
       <span className={styles.label}>Demo · Perspective</span>
@@ -91,7 +122,11 @@ export function DemoRibbon() {
             <button
               key={p.id}
               type="button"
-              className={mergeClasses(styles.pill, active && styles.pillActive)}
+              className={mergeClasses(
+                styles.pill,
+                active && styles.pillActive,
+                flashPersona === p.id && flashOn && styles.pillFlash,
+              )}
               onClick={() => setPerspective(p.id, true)}
               aria-pressed={active}
             >

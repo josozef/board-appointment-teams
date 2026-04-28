@@ -1,11 +1,9 @@
 import { Button, makeStyles, tokens } from '@fluentui/react-components'
-import {
-  CheckmarkCircle24Filled,
-  DocumentText20Regular,
-  Open20Regular,
-} from '@fluentui/react-icons'
+import { CheckmarkCircle24Filled } from '@fluentui/react-icons'
 import { AdaptiveCard } from './AdaptiveCard'
+import { FileChip } from '../FileChip'
 import { useWorkflow } from '../../workflow/WorkflowContext'
+import { selectDocuments } from '../../workflow/documents'
 
 const useStyles = makeStyles({
   body: { display: 'flex', flexDirection: 'column', gap: '14px' },
@@ -32,26 +30,21 @@ const useStyles = makeStyles({
   artifacts: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '6px',
-  },
-  artifactRow: {
-    display: 'flex',
-    alignItems: 'center',
     gap: '8px',
-    fontSize: '13px',
-    color: '#3D3F8C',
-    cursor: 'pointer',
-    background: 'none',
-    border: 'none',
-    padding: '4px 0',
-    textAlign: 'left',
-    ':hover': { textDecoration: 'underline' },
+  },
+  artifactsLabel: {
+    fontSize: '11px',
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground3,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
   },
 })
 
 export function SummaryCard() {
   const styles = useStyles()
   const { workflow } = useWorkflow()
+  const docs = selectDocuments(workflow)
   return (
     <AdaptiveCard
       icon={<CheckmarkCircle24Filled />}
@@ -88,22 +81,10 @@ export function SummaryCard() {
             </span>
           </div>
           <div className={styles.artifacts}>
-            <button type="button" className={styles.artifactRow}>
-              <DocumentText20Regular /> Form 45 — Consent to Act (signed)
-              <Open20Regular />
-            </button>
-            <button type="button" className={styles.artifactRow}>
-              <DocumentText20Regular /> Form 45 — Notification of Change of Director
-              <Open20Regular />
-            </button>
-            <button type="button" className={styles.artifactRow}>
-              <DocumentText20Regular /> Board Resolution (executed)
-              <Open20Regular />
-            </button>
-            <button type="button" className={styles.artifactRow}>
-              <DocumentText20Regular /> ACRA filing receipt
-              <Open20Regular />
-            </button>
+            <span className={styles.artifactsLabel}>Documents on file</span>
+            {docs.map((d) => (
+              <FileChip key={d.id} doc={d} />
+            ))}
           </div>
         </div>
       }

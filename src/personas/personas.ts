@@ -59,9 +59,9 @@ export const PERSONA_BY_ID: Record<PersonaId, Persona> = {
   robert: ROBERT,
 }
 
-export const AGENT_NAME = 'Diligent Governance Agent'
+export const AGENT_NAME = 'Diligent Agent Workforce'
 export const AGENT_SHORT = 'Diligent Agent'
-export const AGENT_SUBTITLE = 'Board appointment workflow · App'
+export const AGENT_SUBTITLE = 'Assitant and Agent Coordinator · App'
 export const AGENT_AVATAR_SRC = '/assets/diligent-agent-avatar.png'
 
 /** Chat list shown in the left chat pane for each persona. */
@@ -88,7 +88,7 @@ export interface ChatListSection {
 const AGENT_ENTRY: ChatListEntry = {
   id: 'agent',
   name: AGENT_NAME,
-  subtitle: 'Board appointment workflow',
+  subtitle: 'Assitant and Agent Coordinator',
   kind: 'bot',
   isAgentThread: true,
 }

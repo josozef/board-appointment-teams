@@ -101,11 +101,79 @@ export const DAVID_MARTINEZ: Approver = {
   fromCommittee: 'Nominating & Governance',
 }
 
+export const ANITA_RAO: Approver = {
+  id: 'anita-rao',
+  name: 'Anita Rao',
+  initials: 'AR',
+  title: 'Independent Director',
+  email: 'anita.rao@acme.com',
+  fromCommittee: 'Risk',
+}
+
+export const JAMES_PARK: Approver = {
+  id: 'james-park',
+  name: 'James Park',
+  initials: 'JP',
+  title: 'Independent Director',
+  email: 'james.park@acme.com',
+  fromCommittee: 'Audit',
+}
+
+export const CLAIRE_DUBOIS: Approver = {
+  id: 'claire-dubois',
+  name: 'Claire Dubois',
+  initials: 'CD',
+  title: 'Non-Executive Director',
+  email: 'claire.dubois@acme.com',
+  fromCommittee: 'Compensation',
+}
+
+export const ETHAN_COLE: Approver = {
+  id: 'ethan-cole',
+  name: 'Ethan Cole',
+  initials: 'EC',
+  title: 'Independent Director',
+  email: 'ethan.cole@acme.com',
+  fromCommittee: 'Technology',
+}
+
+export const SOPHIA_KIM: Approver = {
+  id: 'sophia-kim',
+  name: 'Sophia Kim',
+  initials: 'SK',
+  title: 'Non-Executive Director',
+  email: 'sophia.kim@acme.com',
+  fromCommittee: 'Nominating & Governance',
+}
+
+export const MIGUEL_SANTOS: Approver = {
+  id: 'miguel-santos',
+  name: 'Miguel Santos',
+  initials: 'MS',
+  title: 'Independent Director',
+  email: 'miguel.santos@acme.com',
+  fromCommittee: 'ESG',
+}
+
 export const APPROVER_POOL: Approver[] = [
   ROBERT_JOHNSON,
   MARGARET_SULLIVAN,
   LINDA_WILLIAMS,
   DAVID_MARTINEZ,
+  ANITA_RAO,
+  JAMES_PARK,
+  CLAIRE_DUBOIS,
+  ETHAN_COLE,
+  SOPHIA_KIM,
+  MIGUEL_SANTOS,
+]
+
+export const DEFAULT_SELECTED_APPROVERS: Approver[] = [
+  ROBERT_JOHNSON,
+  MARGARET_SULLIVAN,
+  LINDA_WILLIAMS,
+  DAVID_MARTINEZ,
+  ANITA_RAO,
 ]
 
 const filingDeadline = '2026-05-31'
@@ -151,7 +219,8 @@ export function buildInitialWorkflow(): AppointmentWorkflow {
 
     approvers: {
       confirmed: false,
-      selected: APPROVER_POOL,
+      primaryBoardMembers: APPROVER_POOL,
+      selected: DEFAULT_SELECTED_APPROVERS,
     },
 
     boardResolution: {
@@ -204,7 +273,7 @@ export function buildInitialWorkflow(): AppointmentWorkflow {
     agentic: {
       active: false,
       paused: false,
-      votes: APPROVER_POOL.map((a) => ({
+      votes: DEFAULT_SELECTED_APPROVERS.map((a) => ({
         id: a.id,
         name: a.name,
         title: a.title,

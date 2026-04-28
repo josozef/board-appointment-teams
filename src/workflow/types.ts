@@ -113,6 +113,7 @@ export interface AppointmentWorkflow {
   consentDocument: ConsentDocument
   approvers: {
     confirmed: boolean
+    primaryBoardMembers: Approver[]
     selected: Approver[]
   }
   boardResolution: BoardResolution
