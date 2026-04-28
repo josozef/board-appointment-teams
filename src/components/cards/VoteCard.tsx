@@ -5,6 +5,7 @@ import {
   ProgressBar,
   tokens,
 } from '@fluentui/react-components'
+import { useEffect, useRef } from 'react'
 import {
   CheckmarkCircle20Filled,
   Circle20Regular,
@@ -75,9 +76,39 @@ interface VoteCardProps {
 export function VoteCard({ audience }: VoteCardProps) {
   const styles = useStyles()
   const { workflow, castVote } = useWorkflow()
-  const resolutionDoc = selectDocuments(workflow).find(
+  const resolutionDocs = selectDocuments(workflow).filter(
     (d) => d.id === 'doc-board-resolution',
   )
+  const resolutionDoc = resolutionDocs[0]
+  const instanceId = useRef(
+    `vote-${Math.random().toString(36).slice(2, 8)}`,
+  ).current
+  const renderedResolutionChipSlots = Number(Boolean(resolutionDoc))
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7887/ingest/b8e6d81a-b8fd-4d41-8aca-1e085000e6ed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': 'fd03f8',
+      },
+      body: JSON.stringify({
+        sessionId: 'fd03f8',
+        runId: 'board-doc-dup-check',
+        hypothesisId: 'A|B|C',
+        location: 'VoteCard.tsx:useEffect',
+        message: 'vote-card-render-metrics',
+        data: {
+          instanceId,
+          audience,
+          resolutionDocsCount: resolutionDocs.length,
+          renderedResolutionChipSlots,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+  }, [instanceId, audience, resolutionDocs.length, renderedResolutionChipSlots])
+  // #endregion
   const leadVote = workflow.agentic.votes[0]
   const leadVoted = leadVote?.status === 'approved'
   const approvedCount = workflow.agentic.votes.filter(
@@ -112,7 +143,6 @@ export function VoteCard({ audience }: VoteCardProps) {
       statusLabel={statusLabel}
       body={
         <div className={styles.body}>
-          {resolutionDoc && <FileChip doc={resolutionDoc} />}
           {resolutionDoc && <FileChip doc={resolutionDoc} />}
           {audience === 'sarah' && (
             <>
