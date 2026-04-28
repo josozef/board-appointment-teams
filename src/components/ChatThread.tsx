@@ -160,8 +160,9 @@ function buildSarahMessages(
     timestamp: timeStr(22),
     body: (
       <>
-        Great. To prepare Form 45 I need NRIC and the effective date. I&apos;ve
-        prefilled what we have on file — just confirm or correct.
+        Great. To prepare the Consent to Act and the ACRA Form 45, I need
+        NRIC and the effective date. I&apos;ve prefilled what we have on
+        file — just confirm or correct.
       </>
     ),
   })
@@ -189,8 +190,8 @@ function buildSarahMessages(
     timestamp: timeStr(19),
     body: (
       <>
-        Here&apos;s the draft Consent to Act (Form 45). Review and I&apos;ll send
-        it to {workflow.selectedCandidate?.name?.split(' ')[0]} for signature.
+        Here&apos;s the draft Consent to Act. Review and I&apos;ll send it to{' '}
+        {workflow.selectedCandidate?.name?.split(' ')[0]} for signature.
       </>
     ),
   })

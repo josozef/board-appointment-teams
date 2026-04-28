@@ -8,7 +8,7 @@ import {
   Video24Regular,
 } from '@fluentui/react-icons'
 import { Avatar } from './Avatar'
-import { AGENT_AVATAR_SRC, AGENT_NAME } from '../personas/personas'
+import { AGENT_AVATAR_SRC, AGENT_NAME, AGENT_SUBTITLE } from '../personas/personas'
 
 const useStyles = makeStyles({
   header: {
@@ -119,7 +119,7 @@ export function ChatHeader({ activeTab, onSelectTab, fileCount }: ChatHeaderProp
         />
         <div className={styles.titleCol}>
           <span className={styles.title}>{AGENT_NAME}</span>
-          <span className={styles.subtitle}>Board appointment workflow · App</span>
+          <span className={styles.subtitle}>{AGENT_SUBTITLE}</span>
         </div>
         <div className={styles.tabs}>
           {tab('chat', 'Chat')}

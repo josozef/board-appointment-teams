@@ -38,7 +38,7 @@ export function AboutPane() {
       <div className={styles.inner}>
         <h1 className={styles.title}>{AGENT_NAME}</h1>
         <div className={styles.subtitle}>
-          Board appointment workflow · Diligent Governance app
+          Corporate governance workflow · Diligent Governance app
         </div>
         <div className={styles.section}>
           <div className={styles.sectionTitle}>What I do</div>

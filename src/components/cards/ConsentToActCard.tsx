@@ -42,7 +42,9 @@ export function ConsentToActCard({ audience }: ConsentToActCardProps) {
   const { workflow, sendConsent, signConsent } = useWorkflow()
   const sent = workflow.consentDocument.sent
   const signed = workflow.consentDocument.signedAt !== null
-  const consentDoc = selectDocuments(workflow).find((d) => d.id === 'doc-form-45')
+  const consentDoc = selectDocuments(workflow).find(
+    (d) => d.id === 'doc-consent-to-act',
+  )
 
   let status: CardStatus = 'awaiting'
   let statusLabel = audience === 'sarah' ? 'Ready to send' : 'Action needed'
@@ -60,7 +62,7 @@ export function ConsentToActCard({ audience }: ConsentToActCardProps) {
   return (
     <AdaptiveCard
       icon={<DocumentSignature24Regular />}
-      title="Form 45 — Consent to Act as Director"
+      title="Consent to Act as Director"
       subtitle="Companies Act s.145(5) · Singapore"
       status={status}
       statusLabel={statusLabel}

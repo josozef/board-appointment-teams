@@ -127,9 +127,9 @@ export function FilesPane() {
         <div className={styles.empty}>
           <div className={styles.emptyTitle}>Files will appear here</div>
           <div className={styles.emptyBody}>
-            Documents created during this appointment workflow — Form 45, Board
-            Resolution, ACRA receipt — will be saved to this chat as they
-            move through review and signature.
+            Documents created during this appointment workflow — Consent to
+            Act, Board Resolution, and the ACRA Form 45 — will be saved to
+            this chat as they move through review and signature.
           </div>
         </div>
       ) : (
