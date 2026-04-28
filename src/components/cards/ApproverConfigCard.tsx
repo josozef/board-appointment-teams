@@ -1,9 +1,12 @@
 import {
   Button,
   Checkbox,
+  Dropdown,
   makeStyles,
+  Option,
   tokens,
 } from '@fluentui/react-components'
+import { useMemo, useState } from 'react'
 import {
   CheckmarkCircle20Filled,
   GavelRegular,
@@ -59,12 +62,40 @@ const useStyles = makeStyles({
 
 export function ApproverConfigCard() {
   const styles = useStyles()
-  const { workflow, confirmApprovers, sendResolution } = useWorkflow()
+  const { workflow, confirmApprovers, sendResolution, setApprovers } = useWorkflow()
   const confirmed = workflow.approvers.confirmed
   const sent = workflow.boardResolution.sent
+  const selected = workflow.approvers.selected
+  const [pickerValue, setPickerValue] = useState<string | undefined>()
   const resolutionDoc = selectDocuments(workflow).find(
     (d) => d.id === 'doc-board-resolution',
   )
+  const availableToAdd = useMemo(
+    () =>
+      workflow.approvers.primaryBoardMembers.filter(
+        (m) => !selected.some((s) => s.id === m.id),
+      ),
+    [workflow.approvers.primaryBoardMembers, selected],
+  )
+
+  const toggleApprover = (id: string, checked: boolean) => {
+    if (sent) return
+    const next = checked
+      ? selected
+      : selected.filter((approver) => approver.id !== id)
+    if (next.length === 0) return
+    setApprovers(next)
+  }
+
+  const addApprover = () => {
+    if (sent || !pickerValue) return
+    const approver = workflow.approvers.primaryBoardMembers.find(
+      (m) => m.id === pickerValue,
+    )
+    if (!approver) return
+    setApprovers([...selected, approver])
+    setPickerValue(undefined)
+  }
 
   let status: CardStatus = 'awaiting'
   let statusLabel = 'Confirm approvers'
@@ -88,7 +119,11 @@ export function ApproverConfigCard() {
           <div className={styles.approverList}>
             {workflow.approvers.selected.map((a) => (
               <div key={a.id} className={styles.approverRow}>
-                <Checkbox checked disabled />
+                <Checkbox
+                  checked
+                  disabled={sent}
+                  onChange={(_, data) => toggleApprover(a.id, Boolean(data.checked))}
+                />
                 <Avatar
                   kind="person"
                   initials={a.initials}
@@ -104,6 +139,34 @@ export function ApproverConfigCard() {
               </div>
             ))}
           </div>
+          {!sent && availableToAdd.length > 0 && (
+            <div className={styles.approverRow}>
+              <Dropdown
+                value={
+                  workflow.approvers.primaryBoardMembers.find(
+                    (m) => m.id === pickerValue,
+                  )?.name ?? 'Select board member'
+                }
+                selectedOptions={pickerValue ? [pickerValue] : []}
+                onOptionSelect={(_, data) =>
+                  setPickerValue(data.optionValue ?? undefined)
+                }
+              >
+                {availableToAdd.map((member) => (
+                  <Option
+                    key={member.id}
+                    value={member.id}
+                    text={`${member.name} · ${member.title}`}
+                  >
+                    {member.name} · {member.title}
+                  </Option>
+                ))}
+              </Dropdown>
+              <Button appearance="subtle" onClick={addApprover} disabled={!pickerValue}>
+                Add approver
+              </Button>
+            </div>
+          )}
 
           <span className={styles.resolutionLabel}>Board Resolution</span>
           {resolutionDoc && <FileChip doc={resolutionDoc} />}
@@ -137,7 +200,11 @@ export function ApproverConfigCard() {
         ) : (
           <>
             <Button appearance="subtle">Add approver</Button>
-            <Button appearance="primary" onClick={confirmApprovers}>
+            <Button
+              appearance="primary"
+              onClick={confirmApprovers}
+              disabled={selected.length === 0}
+            >
               Confirm approvers
             </Button>
           </>

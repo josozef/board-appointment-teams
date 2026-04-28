@@ -8,7 +8,7 @@ import { Composer } from './Composer'
 import { FilesPane } from './FilesPane'
 import { AboutPane } from './AboutPane'
 import { useWorkflow } from '../workflow/WorkflowContext'
-import { selectDocuments } from '../workflow/documents'
+import { selectDocumentsForPersona } from '../workflow/documents'
 import type { PersonaId } from '../personas/personas'
 
 const useStyles = makeStyles({
@@ -42,7 +42,7 @@ export function TeamsAppShell({ persona }: TeamsAppShellProps) {
   const [selectedChatId, setSelectedChatId] = useState('agent')
   const [activeTab, setActiveTab] = useState<ChatHeaderTab>('chat')
   const { workflow } = useWorkflow()
-  const fileCount = selectDocuments(workflow).length
+  const fileCount = selectDocumentsForPersona(workflow, persona).length
   return (
     <div className={styles.shell}>
       <AppRail active="chat" />
@@ -58,7 +58,7 @@ export function TeamsAppShell({ persona }: TeamsAppShellProps) {
           fileCount={fileCount}
         />
         {activeTab === 'chat' && <ChatThread persona={persona} />}
-        {activeTab === 'files' && <FilesPane />}
+        {activeTab === 'files' && <FilesPane persona={persona} />}
         {activeTab === 'about' && <AboutPane />}
         {activeTab === 'chat' && (
           <Composer

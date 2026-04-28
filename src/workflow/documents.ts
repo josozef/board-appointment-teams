@@ -1,24 +1,14 @@
 /**
- * Document model for the workflow's Files surface.
- *
- * Documents are *derived* from the workflow state (no separate slice) so the
- * Files tab and the inline file chips both stay in sync with the chat.
- *
- * Each document points to a real .docx asset shipped under public/assets/docs.
- * `openDocument` simulates "opening in Word online" by converting the .docx
- * to HTML via mammoth and rendering it in a Word-styled shell in a new tab.
+ * Document model for workflow Files.
+ * Documents are derived from workflow state and point to real uploaded assets.
  */
 import type { AppointmentWorkflow } from './types'
+import type { PersonaId } from '../personas/personas'
 import { AGENT_NAME } from '../personas/personas'
 
 export type DocumentKind = 'docx' | 'pdf'
 
-export type DocumentStatus =
-  | 'draft'
-  | 'sent'
-  | 'signed'
-  | 'filed'
-  | 'final'
+export type DocumentStatus = 'draft' | 'sent' | 'signed' | 'filed' | 'final'
 
 export interface WorkflowDocument {
   id: string
@@ -30,7 +20,6 @@ export interface WorkflowDocument {
   modifiedAt: string | null
   sizeBytes: number
   status: DocumentStatus
-  /** Public URL to the source .docx (or .pdf) asset. */
   sourceUrl: string
 }
 
@@ -63,7 +52,9 @@ const formatBytes = (n: number) => {
 export const formatModifiedDisplay = formatModified
 export const formatSize = formatBytes
 
-/** Compute the document list visible in the Files tab from the current state. */
+const escape = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
 export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument[] {
   const docs: WorkflowDocument[] = []
   const consent = workflow.consentDocument
@@ -134,11 +125,16 @@ export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument
   return docs
 }
 
-const escape = (s: string) =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+export function selectDocumentsForPersona(
+  workflow: AppointmentWorkflow,
+  persona: PersonaId,
+): WorkflowDocument[] {
+  const docs = selectDocuments(workflow)
+  if (persona === 'priya') return docs.filter((d) => d.id === 'doc-consent-to-act')
+  if (persona === 'robert')
+    return docs.filter((d) => d.id === 'doc-board-resolution')
+  return docs
+}
 
 const docxShell = (doc: WorkflowDocument, bodyHtml: string) => `<!doctype html>
 <html lang="en"><head>
@@ -149,7 +145,6 @@ const docxShell = (doc: WorkflowDocument, bodyHtml: string) => `<!doctype html>
   html, body { margin: 0; min-height: 100%; background: #f3f2f1; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color: #201f1e; }
   .titlebar { background: #185ABD; color: #fff; padding: 6px 12px; font-size: 12px; display: flex; gap: 8px; align-items: center; position: sticky; top: 0; z-index: 2; }
   .titlebar .word-mark { background: #fff; color: #185ABD; font-weight: 700; padding: 2px 6px; border-radius: 2px; font-size: 11px; }
-  .titlebar .filename { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .titlebar .status-pill { background: rgba(255,255,255,.15); padding: 2px 8px; border-radius: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
   .ribbon { background: #fff; border-bottom: 1px solid #e1dfdd; padding: 6px 12px; display: flex; gap: 16px; font-size: 12px; color: #605e5c; position: sticky; top: 24px; z-index: 1; }
   .ribbon span { padding: 2px 6px; }
@@ -163,13 +158,13 @@ const docxShell = (doc: WorkflowDocument, bodyHtml: string) => `<!doctype html>
   .page table { border-collapse: collapse; margin: 6px 0 14px; }
   .page td, .page th { border: 1px solid #c8c6c4; padding: 4px 8px; vertical-align: top; }
   .page ul, .page ol { margin: 0 0 12px 0; padding-left: 24px; }
-  .signature-block { margin-top: 36px; border-top: 1px solid #c8c6c4; padding-top: 18px; font-size: 10pt; color: #605e5c; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+  .signature-block { margin-top: 36px; border-top: 1px solid #c8c6c4; padding-top: 18px; font-size: 10pt; color: #605e5c; }
   .error { color: #b91c1c; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; padding: 24px; }
 </style>
 </head><body>
   <div class="titlebar">
     <span class="word-mark">W</span>
-    <span class="filename">${escape(doc.filename)}</span>
+    <span>${escape(doc.filename)}</span>
     <span class="status-pill">${escape(doc.status)}</span>
     <span style="opacity:.7">— Saved</span>
   </div>
@@ -192,12 +187,8 @@ const errorShell = (doc: WorkflowDocument, err: string) =>
     `<h1>${escape(doc.title)}</h1><p class="error">Could not load this document: ${escape(err)}</p>`,
   )
 
-/** Open a Word-styled in-browser preview of the doc in a new tab. */
+/** Open a Word-styled browser view for uploaded docs. */
 export async function openDocument(doc: WorkflowDocument) {
-  // Open the new tab synchronously so popup blockers allow it. We then write
-  // a loading splash, fetch+convert the .docx, and replace the document.
-  // NOTE: must NOT pass `noopener` — that forces window.open to return null,
-  // and we need the handle to document.write the Word shell into the new tab.
   const w = window.open('about:blank', '_blank')
   if (!w) return
   w.document.write(
@@ -211,7 +202,6 @@ export async function openDocument(doc: WorkflowDocument) {
 
   try {
     const [{ default: mammoth }, res] = await Promise.all([
-      // Lazy import keeps mammoth out of the initial bundle and silences SSR-only warnings.
       import('mammoth/mammoth.browser'),
       fetch(doc.sourceUrl),
     ])

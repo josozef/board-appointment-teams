@@ -10,7 +10,8 @@ import {
   CloudArrowUp24Regular,
   Filter24Regular,
 } from '@fluentui/react-icons'
-import { selectDocuments } from '../workflow/documents'
+import type { PersonaId } from '../personas/personas'
+import { selectDocumentsForPersona } from '../workflow/documents'
 import { useWorkflow } from '../workflow/WorkflowContext'
 import { FileChip } from './FileChip'
 
@@ -100,10 +101,14 @@ const useStyles = makeStyles({
   },
 })
 
-export function FilesPane() {
+interface FilesPaneProps {
+  persona: PersonaId
+}
+
+export function FilesPane({ persona }: FilesPaneProps) {
   const styles = useStyles()
   const { workflow } = useWorkflow()
-  const docs = selectDocuments(workflow)
+  const docs = selectDocumentsForPersona(workflow, persona)
 
   return (
     <section className={styles.pane} aria-label="Files">
