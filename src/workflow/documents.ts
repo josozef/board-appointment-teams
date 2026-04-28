@@ -8,12 +8,7 @@ import { AGENT_NAME } from '../personas/personas'
 
 export type DocumentKind = 'docx' | 'pdf'
 
-export type DocumentStatus =
-  | 'draft'
-  | 'sent'
-  | 'signed'
-  | 'filed'
-  | 'final'
+export type DocumentStatus = 'draft' | 'sent' | 'signed' | 'filed' | 'final'
 
 export interface WorkflowDocument {
   id: string
@@ -58,10 +53,7 @@ export const formatModifiedDisplay = formatModified
 export const formatSize = formatBytes
 
 const escape = (s: string) =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument[] {
   const docs: WorkflowDocument[] = []
@@ -70,16 +62,8 @@ export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument
   const appointee = workflow.selectedCandidate
   const filingStarted =
     workflow.steps.find((s) => s.id === 'filing')?.status !== 'not_started'
-  const filingStarted =
-    workflow.steps.find((s) => s.id === 'filing')?.status !== 'not_started'
   const filingDone =
     workflow.steps.find((s) => s.id === 'filing')?.status === 'completed'
-
-  const DOC_ASSETS = {
-    consent: '/assets/docs/consent-to-act-priya-nair.docx',
-    resolution: '/assets/docs/board-resolution-pacific-polymer-priya-nair.docx',
-    form45: '/assets/docs/form-45-pacific-polymer.docx',
-  } as const
 
   if (appointee) {
     let status: DocumentStatus = 'draft'
@@ -89,18 +73,13 @@ export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument
     docs.push({
       id: 'doc-consent-to-act',
       filename: `Consent to Act - ${appointee.name}.docx`,
-      id: 'doc-consent-to-act',
-      filename: `Consent to Act - ${appointee.name}.docx`,
       kind: 'docx',
-      title: 'Consent to Act as Director',
       title: 'Consent to Act as Director',
       subtitle: `Companies Act s.145(5) · ${workflow.entity.name}`,
       modifiedBy: status === 'signed' ? appointee.name : AGENT_NAME,
       modifiedAt: lastEdit,
       sizeBytes: 32_305,
-      sizeBytes: 32_305,
       status,
-      sourceUrl: DOC_ASSETS.consent,
       sourceUrl: DOC_ASSETS.consent,
     })
   }
@@ -116,23 +95,17 @@ export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument
     docs.push({
       id: 'doc-board-resolution',
       filename: `Board Resolution - Pacific Polymer Logistics Pte. Ltd. - ${appointee?.name ?? 'Director Appointment'}.docx`,
-      filename: `Board Resolution - Pacific Polymer Logistics Pte. Ltd. - ${appointee?.name ?? 'Director Appointment'}.docx`,
       kind: 'docx',
       title: 'Board Resolution — Director Appointment',
-      subtitle: 'Acme · Nominating & Governance Committee',
       subtitle: 'Acme · Nominating & Governance Committee',
       modifiedBy: AGENT_NAME,
       modifiedAt: lastEdit,
       sizeBytes: 35_445,
-      sizeBytes: 35_445,
       status,
-      sourceUrl: DOC_ASSETS.resolution,
       sourceUrl: DOC_ASSETS.resolution,
     })
   }
 
-  if (filingStarted) {
-    const status: DocumentStatus = filingDone ? 'filed' : 'draft'
   if (filingStarted) {
     const status: DocumentStatus = filingDone ? 'filed' : 'draft'
     docs.push({
@@ -142,16 +115,7 @@ export function selectDocuments(workflow: AppointmentWorkflow): WorkflowDocument
       title: 'Form 45 — Notification of Change of Director',
       subtitle: 'ACRA BizFile+ · Companies Act s.173(6) · Singapore',
       modifiedBy: AGENT_NAME,
-      id: 'doc-form-45',
-      filename: 'Form 45 - Pacific Polymer Logistics.docx',
-      kind: 'docx',
-      title: 'Form 45 — Notification of Change of Director',
-      subtitle: 'ACRA BizFile+ · Companies Act s.173(6) · Singapore',
-      modifiedBy: AGENT_NAME,
       modifiedAt: workflow.updatedAt,
-      sizeBytes: 31_833,
-      status,
-      sourceUrl: DOC_ASSETS.form45,
       sizeBytes: 31_833,
       status,
       sourceUrl: DOC_ASSETS.form45,
@@ -166,12 +130,9 @@ export function selectDocumentsForPersona(
   persona: PersonaId,
 ): WorkflowDocument[] {
   const docs = selectDocuments(workflow)
-  if (persona === 'priya') {
-    return docs.filter((d) => d.id === 'doc-consent-to-act')
-  }
-  if (persona === 'robert') {
+  if (persona === 'priya') return docs.filter((d) => d.id === 'doc-consent-to-act')
+  if (persona === 'robert')
     return docs.filter((d) => d.id === 'doc-board-resolution')
-  }
   return docs
 }
 
@@ -181,8 +142,6 @@ const docxShell = (doc: WorkflowDocument, bodyHtml: string) => `<!doctype html>
 <title>${escape(doc.filename)} — Microsoft Word</title>
 <style>
   :root { color-scheme: light; }
-  html, body { margin: 0; min-height: 100%; background: #f3f2f1; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color: #201f1e; }
-  .titlebar { background: #185ABD; color: #fff; padding: 6px 12px; font-size: 12px; display: flex; gap: 8px; align-items: center; position: sticky; top: 0; z-index: 2; }
   html, body { margin: 0; min-height: 100%; background: #f3f2f1; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color: #201f1e; }
   .titlebar { background: #185ABD; color: #fff; padding: 6px 12px; font-size: 12px; display: flex; gap: 8px; align-items: center; position: sticky; top: 0; z-index: 2; }
   .titlebar .word-mark { background: #fff; color: #185ABD; font-weight: 700; padding: 2px 6px; border-radius: 2px; font-size: 11px; }
@@ -215,9 +174,7 @@ const docxShell = (doc: WorkflowDocument, bodyHtml: string) => `<!doctype html>
   </div>
   <div class="page-wrap"><div class="page">
     ${bodyHtml}
-    ${bodyHtml}
     <div class="signature-block">
-      <p><strong>Status:</strong> ${escape(doc.status.toUpperCase())}</p>
       <p><strong>Status:</strong> ${escape(doc.status.toUpperCase())}</p>
       <p><strong>Last modified:</strong> ${escape(formatModified(doc.modifiedAt))} · ${escape(doc.modifiedBy)}</p>
     </div>

@@ -14,7 +14,6 @@ import {
 import { AdaptiveCard, type CardStatus } from './AdaptiveCard'
 import { Avatar } from '../Avatar'
 import { FileChip } from '../FileChip'
-import { FileChip } from '../FileChip'
 import { useWorkflow } from '../../workflow/WorkflowContext'
 import { selectDocuments } from '../../workflow/documents'
 

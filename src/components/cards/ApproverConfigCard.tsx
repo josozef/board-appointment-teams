@@ -153,7 +153,11 @@ export function ApproverConfigCard() {
                 }
               >
                 {availableToAdd.map((member) => (
-                  <Option key={member.id} value={member.id}>
+                  <Option
+                    key={member.id}
+                    value={member.id}
+                    text={`${member.name} · ${member.title}`}
+                  >
                     {member.name} · {member.title}
                   </Option>
                 ))}
