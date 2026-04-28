@@ -132,8 +132,9 @@ export function FilesPane({ persona }: FilesPaneProps) {
         <div className={styles.empty}>
           <div className={styles.emptyTitle}>Files will appear here</div>
           <div className={styles.emptyBody}>
-            Files relevant to your role in this workflow will appear here as
-            they move through review and signature.
+            Documents created during this appointment workflow — Consent to
+            Act, Board Resolution, and the ACRA Form 45 — will be saved to
+            this chat as they move through review and signature.
           </div>
         </div>
       ) : (
